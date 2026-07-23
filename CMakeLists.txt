@@ -6,7 +6,22 @@ find_package(OpenGL REQUIRED)
 add_subdirectory(libs/glfw-3.4)
 add_subdirectory(libs/glm)
 
-add_executable(${PROJECT_NAME} src/glad.c src/main.cpp)
+set(SOURCES
+    src/main.cpp
+    src/glad.c
+    src/core/shaderUtils.cpp
+    src/simulations/clothSimulation.cpp
+    src/application.cpp
+    libs/imgui/imgui_draw.cpp
+    libs/imgui/imgui_impl_glfw.cpp
+    libs/imgui/imgui_impl_opengl3.cpp
+    libs/imgui/imgui_tables.cpp
+    libs/imgui/imgui_widgets.cpp
+    libs/imgui/imgui.cpp
+    src/core/simulation2D.cpp
+)
+
+add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/libs)
 
