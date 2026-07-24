@@ -4,6 +4,12 @@
 #include "core/simulation.h"
 #include "input/mouseListener.h"
 
+struct Vertex
+{
+  glm::vec2 position;
+  glm::vec3 color;
+};
+
 class Simulation2D : public Simulation, public MouseListener
 {
 protected:

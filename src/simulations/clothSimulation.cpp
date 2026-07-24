@@ -5,12 +5,6 @@
 #include <glm/gtc/constants.hpp>
 #include "imgui/imgui.h"
 
-struct Vertex
-{
-  glm::vec2 position;
-  glm::vec3 color;
-};
-
 Particle::Particle(float x, float y) : currentPosition(x, y), previousPosition(x, y)
 {
   this->isPinned = false;
@@ -137,7 +131,7 @@ ClothSimulation::~ClothSimulation()
 
 void ClothSimulation::init()
 {
-  shaderProgram = ShaderUtils::makeShader("../src/shaders/clothVertex.glsl", "../src/shaders/clothFragment.glsl");
+  shaderProgram = ShaderUtils::makeShader("../src/shaders/basicVertex.glsl", "../src/shaders/basicFragment.glsl");
 
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1, &VBO);

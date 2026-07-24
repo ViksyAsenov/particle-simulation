@@ -1,6 +1,7 @@
 #include <config.h>
 #include "application.h"
 #include "simulations/clothSimulation.h"
+#include "simulations/fallingSandSimulation.h"
 #include "input/mouseListener.h"
 
 Application::Application()
@@ -37,7 +38,8 @@ bool Application::init()
     return false;
   }
 
-  glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+  // glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+  glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
   window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Particle Simulation", NULL, NULL);
 
   if (window == NULL)
@@ -78,9 +80,9 @@ bool Application::init()
 
   ImGui_ImplGlfw_InitForOpenGL(window, true);
   ImGui_ImplOpenGL3_Init("#version 400");
-  glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+  glClearColor(0.0f, 0.0f, 0.0f, 0.75f);
 
-  activeSimulation = new ClothSimulation(40, 30, 15.0f, 100.0f, 50.0f, SCREEN_WIDTH, SCREEN_HEIGHT);
+  activeSimulation = new FallingSandSimulation(40, 30, 15.0f, SCREEN_WIDTH, SCREEN_HEIGHT);
   activeSimulation->init();
 
   syncSimulationResolution();

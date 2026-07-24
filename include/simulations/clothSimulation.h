@@ -1,3 +1,5 @@
+#pragma once
+
 #include <config.h>
 
 #include "core/simulation2D.h"
