@@ -20,6 +20,9 @@ protected:
   glm::vec2 cameraPosition;
   float cameraZoom = 1.0f;
 
+  glm::vec2 defaultCameraPosition = glm::vec2(0.0f, 0.0f);
+  float defaultCameraZoom = 1.0f;
+
   glm::vec2 worldMousePosition;
   bool isLeftMouseDown = false;
   bool isRightMouseDown = false;
@@ -29,9 +32,13 @@ protected:
 private:
   glm::vec2 lastScreenMousePosition;
 
+  void setProjectionMatrix(int width, int height);
+
 public:
   Simulation2D(int screenWidth, int screenHeight);
   virtual ~Simulation2D() = default;
+
+  void setCameraFocus(glm::vec2 focusPoint, float zoom = 1.0f);
 
   virtual void onResize(int newScreenWidth, int newScreenHeight) override;
   virtual void resetCamera() override;

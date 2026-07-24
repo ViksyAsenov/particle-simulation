@@ -7,7 +7,18 @@ Simulation2D::Simulation2D(int screenWidth, int screenHeight)
 {
   this->screenWidth = screenWidth;
   this->screenHeight = screenHeight;
-  this->cameraPosition = glm::vec2(screenWidth / 2.0f, screenHeight / 2.0f);
+
+  this->cameraPosition = glm::vec2(0.0f, 0.0f);
+
+  setProjectionMatrix(screenWidth, screenHeight);
+}
+
+void Simulation2D::setCameraFocus(glm::vec2 focusPoint, float zoom)
+{
+  this->defaultCameraPosition = focusPoint;
+  this->defaultCameraZoom = zoom;
+
+  resetCamera();
 }
 
 void Simulation2D::onResize(int newScreenWidth, int newScreenHeight)
@@ -20,10 +31,15 @@ void Simulation2D::onResize(int newScreenWidth, int newScreenHeight)
   this->screenWidth = newScreenWidth;
   this->screenHeight = newScreenHeight;
 
+  setProjectionMatrix(newScreenWidth, newScreenHeight);
+}
+
+void Simulation2D::setProjectionMatrix(int width, int height)
+{
   projectionMatrix = glm::ortho(
       0.0f,
-      static_cast<float>(newScreenWidth),
-      static_cast<float>(newScreenHeight),
+      static_cast<float>(width),
+      static_cast<float>(height),
       0.0f,
       -1.0f,
       1.0f);
@@ -31,9 +47,8 @@ void Simulation2D::onResize(int newScreenWidth, int newScreenHeight)
 
 void Simulation2D::resetCamera()
 {
-  cameraPosition = glm::vec2(screenWidth / 2.0f, screenHeight / 2.0f);
-
-  cameraZoom = 1.0f;
+  cameraPosition = defaultCameraPosition;
+  cameraZoom = defaultCameraZoom;
 }
 
 void Simulation2D::onMouseMove(float x, float y)

@@ -38,9 +38,8 @@ bool Application::init()
     return false;
   }
 
-  // glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
   glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
-  window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Particle Simulation", NULL, NULL);
+  window = glfwCreateWindow(screenWidth, screenHeight, "Particle Simulation", NULL, NULL);
 
   if (window == NULL)
   {
@@ -65,6 +64,8 @@ bool Application::init()
     return false;
   }
 
+  glViewport(static_cast<int>(currentUiWidth), 0, screenWidth - static_cast<int>(currentUiWidth), screenHeight);
+
   glfwSetWindowUserPointer(window, this);
   glfwSetCursorPosCallback(window, cursorCallback);
   glfwSetMouseButtonCallback(window, mouseButtonCallback);
@@ -81,11 +82,6 @@ bool Application::init()
   ImGui_ImplGlfw_InitForOpenGL(window, true);
   ImGui_ImplOpenGL3_Init("#version 400");
   glClearColor(0.0f, 0.0f, 0.0f, 0.75f);
-
-  activeSimulation = new FallingSandSimulation(40, 30, 15.0f, SCREEN_WIDTH, SCREEN_HEIGHT);
-  activeSimulation->init();
-
-  syncSimulationResolution();
 
   return true;
 }
@@ -116,16 +112,42 @@ void Application::run()
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    ImGui::Begin("Simulation Controls");
+    ImGuiViewport *viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(viewport->Pos);
+
+    ImGui::SetNextWindowSize(ImVec2(currentUiWidth, viewport->Size.y));
+
+    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
+
+    ImGui::Begin("Simulation Controls", nullptr, windowFlags);
 
     ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
     ImGui::Text("Frame time: %.3f ms", 1000.0f / ImGui::GetIO().Framerate);
 
     ImGui::Separator();
 
-    if (activeSimulation)
+    if (ImGui::BeginTabBar("SimulationTabs"))
     {
-      activeSimulation->renderUI();
+      for (const auto &tab : tabs)
+      {
+        if (ImGui::BeginTabItem(tab.name.c_str()))
+        {
+          if (currentSimulation != tab.type)
+          {
+            switchSimulation(tab.type);
+            currentSimulation = tab.type;
+          }
+
+          if (activeSimulation)
+          {
+            activeSimulation->renderUI();
+          }
+
+          ImGui::EndTabItem();
+        }
+      }
+
+      ImGui::EndTabBar();
     }
 
     ImGui::End();
@@ -153,6 +175,32 @@ void Application::run()
   }
 }
 
+void Application::switchSimulation(SimulationType newSimulation)
+{
+  if (activeSimulation != nullptr)
+  {
+    delete activeSimulation;
+    activeSimulation = nullptr;
+  }
+
+  float simulationWidth = screenWidth - currentUiWidth;
+
+  switch (newSimulation)
+  {
+  case SimulationType::CLOTH:
+    activeSimulation = new ClothSimulation(40, 30, 15.0f, simulationWidth, screenHeight);
+    break;
+  case SimulationType::FALLING_SAND:
+    activeSimulation = new FallingSandSimulation(40, 30, 15.0f, simulationWidth, screenHeight);
+    break;
+  }
+
+  if (activeSimulation)
+  {
+    activeSimulation->init();
+  }
+}
+
 void Application::cursorCallback(GLFWwindow *window, double xPosition, double yPosition)
 {
   if (ImGui::GetCurrentContext() != nullptr && ImGui::GetIO().WantCaptureMouse)
@@ -173,7 +221,9 @@ void Application::cursorCallback(GLFWwindow *window, double xPosition, double yP
     return;
   }
 
-  listener->onMouseMove(static_cast<float>(xPosition), static_cast<float>(yPosition));
+  float adjustedX = static_cast<float>(xPosition) - app->currentUiWidth;
+
+  listener->onMouseMove(adjustedX, static_cast<float>(yPosition));
 }
 
 void Application::mouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
@@ -219,8 +269,7 @@ void Application::scrollCallback(GLFWwindow *window, double xOffset, double yOff
     return;
   }
 
-  bool isCtrlDown = (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
-                     glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS);
+  bool isCtrlDown = (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS);
 
   if (isCtrlDown)
   {
@@ -234,15 +283,25 @@ void Application::scrollCallback(GLFWwindow *window, double xOffset, double yOff
 
 void Application::framebufferSizeCallback(GLFWwindow *window, int width, int height)
 {
-  glViewport(0, 0, width, height);
 
   Application *app = static_cast<Application *>(glfwGetWindowUserPointer(window));
-  if (!app || !app->activeSimulation)
+
+  if (!app)
   {
     return;
   }
 
-  app->syncSimulationResolution();
+  int simulationWidth = width - static_cast<int>(app->currentUiWidth);
+
+  glViewport(static_cast<int>(app->currentUiWidth), 0, simulationWidth, height);
+
+  app->screenWidth = width;
+  app->screenHeight = height;
+
+  if (app->activeSimulation)
+  {
+    app->activeSimulation->onResize(simulationWidth, height);
+  }
 }
 
 void Application::keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
@@ -263,17 +322,4 @@ void Application::keyCallback(GLFWwindow *window, int key, int scancode, int act
   {
     app->activeSimulation->resetCamera();
   }
-}
-
-void Application::syncSimulationResolution()
-{
-  if (!activeSimulation)
-  {
-    return;
-  }
-
-  int fbWidth, fbHeight;
-  glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-
-  activeSimulation->onResize(fbWidth, fbHeight);
 }

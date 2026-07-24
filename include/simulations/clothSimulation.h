@@ -35,8 +35,7 @@ private:
   std::vector<Particle> particles;
   std::vector<Constraint> constraints;
 
-  int width, height;
-  int startX, startY, spacing;
+  int width, height, spacing;
 
   unsigned int VAO = 0, VBO = 0, shaderProgram = 0;
 
@@ -52,7 +51,7 @@ private:
   void rebuildCloth(int width, int height, float spacing);
 
 public:
-  ClothSimulation(int width, int height, float spacing, float startX, float startY, int screenWidth, int screenHeight);
+  ClothSimulation(int width, int height, float spacing, int screenWidth, int screenHeight);
   ~ClothSimulation();
 
   void init() override;

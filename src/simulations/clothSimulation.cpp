@@ -81,7 +81,7 @@ void ClothSimulation::rebuildCloth(int width, int height, float spacing)
   {
     for (int x = 0; x < width; x++)
     {
-      particles.emplace_back(startX + x * spacing, startY + y * spacing);
+      particles.emplace_back(x * spacing, y * spacing);
 
       if (y == 0)
       {
@@ -110,16 +110,20 @@ void ClothSimulation::rebuildCloth(int width, int height, float spacing)
   }
 }
 
-ClothSimulation::ClothSimulation(int width, int height, float spacing, float startX, float startY, int screenWidth, int screenHeight) : Simulation2D(screenWidth, screenHeight)
+ClothSimulation::ClothSimulation(int width, int height, float spacing, int screenWidth, int screenHeight) : Simulation2D(screenWidth, screenHeight)
 {
   this->width = width;
   this->height = height;
-
-  this->startX = startX;
-  this->startY = startY;
   this->spacing = spacing;
 
   rebuildCloth(width, height, spacing);
+
+  float clothPhysicalWidth = (width - 1) * spacing;
+  float clothPhysicalHeight = (height - 1) * spacing;
+
+  glm::vec2 clothCenter(clothPhysicalWidth / 2.0f, clothPhysicalHeight / 2.0f);
+
+  setCameraFocus(clothCenter, 1.0f);
 }
 
 ClothSimulation::~ClothSimulation()

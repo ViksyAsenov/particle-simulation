@@ -19,6 +19,13 @@ FallingSandSimulation::FallingSandSimulation(int gridWidth, int gridHeight, floa
   this->nextCellSize = cellSize;
 
   rebuildGrid(gridWidth, gridHeight, cellSize);
+
+  float gridPhysicalWidth = (gridWidth - 1) * cellSize;
+  float gridPhysicalHeight = (gridHeight - 1) * cellSize;
+
+  glm::vec2 gridCenter(gridPhysicalWidth / 2.0f, gridPhysicalHeight / 2.0f);
+
+  setCameraFocus(gridCenter, 1.0f);
 }
 
 FallingSandSimulation::~FallingSandSimulation()
@@ -452,9 +459,9 @@ void FallingSandSimulation::renderUI()
 
   ImGui::Text("Grid Properties");
   ImGui::Checkbox("Show Grid Lines", &showGridLines);
-  ImGui::SliderInt("New Width", &nextGridWidth, 30, 500);
-  ImGui::SliderInt("New Height", &nextGridHeight, 30, 500);
-  ImGui::SliderFloat("New Cell Size", &nextCellSize, 1.0f, 20.0f);
+  ImGui::SliderInt("Grid  Width", &nextGridWidth, 30, 500);
+  ImGui::SliderInt("Grid Height", &nextGridHeight, 30, 500);
+  ImGui::SliderFloat("Grid Cell Size", &nextCellSize, 1.0f, 20.0f);
 
   if (ImGui::Button("Apply Grid Size (Resets Sim)"))
   {
