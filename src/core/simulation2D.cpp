@@ -87,7 +87,7 @@ void Simulation2D::onMouseButton(int button, int action, int mods)
 
 void Simulation2D::onMouseScroll(float xOffset, float yOffset)
 {
-  mouseScrollY += yOffset;
+  mouseScrollDeltaY = yOffset;
 }
 
 void Simulation2D::onCameraZoom(float yOffset)

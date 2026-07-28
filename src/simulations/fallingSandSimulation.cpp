@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include "imgui/imgui.h"
 #include <glad/glad.h>
+#include <algorithm>
 
 FallingSandSimulation::FallingSandSimulation(int gridWidth, int gridHeight, float cellSize, int screenWidth, int screenHeight)
     : Simulation2D(screenWidth, screenHeight)
@@ -181,18 +182,13 @@ void FallingSandSimulation::update(float deltaTime)
 {
   totalTime += deltaTime;
 
-  brushSize = static_cast<int>(mouseScrollY);
+  int scrollSteps = static_cast<int>(mouseScrollDeltaY);
 
-  if (brushSize < 1)
+  if (scrollSteps != 0)
   {
-    brushSize = 1;
+    brushSize = std::clamp(brushSize + scrollSteps, 1, 50);
+    mouseScrollDeltaY = 0.0f;
   }
-  if (brushSize > 50)
-  {
-    brushSize = 50;
-  }
-
-  mouseScrollY = static_cast<float>(brushSize);
 
   if (isLeftMouseDown || isRightMouseDown)
   {
@@ -459,8 +455,8 @@ void FallingSandSimulation::renderUI()
 
   ImGui::Text("Grid Properties");
   ImGui::Checkbox("Show Grid Lines", &showGridLines);
-  ImGui::SliderInt("Grid  Width", &nextGridWidth, 30, 500);
-  ImGui::SliderInt("Grid Height", &nextGridHeight, 30, 500);
+  ImGui::SliderInt("Grid  Width", reinterpret_cast<int *>(&nextGridWidth), 30, 500);
+  ImGui::SliderInt("Grid Height", reinterpret_cast<int *>(&nextGridHeight), 30, 500);
   ImGui::SliderFloat("Grid Cell Size", &nextCellSize, 1.0f, 20.0f);
 
   if (ImGui::Button("Apply Grid Size (Resets Sim)"))

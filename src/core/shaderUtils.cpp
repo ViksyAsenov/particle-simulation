@@ -67,3 +67,25 @@ unsigned int ShaderUtils::makeShader(const std::string &vertexFilepath, const st
 
   return shaderProgram;
 }
+
+unsigned int ShaderUtils::makeComputeShader(const std::string &computeFilepath)
+{
+  unsigned int computeShaderModule = makeModule(computeFilepath, GL_COMPUTE_SHADER);
+
+  unsigned int shaderProgram = glCreateProgram();
+  glAttachShader(shaderProgram, computeShaderModule);
+  glLinkProgram(shaderProgram);
+
+  int success;
+  glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+  if (!success)
+  {
+    char errorLog[1024];
+    glGetProgramInfoLog(shaderProgram, 1024, NULL, errorLog);
+    std::cout << "Compute shader program linking failed: " << errorLog << std::endl;
+  }
+
+  glDeleteShader(computeShaderModule);
+
+  return shaderProgram;
+}

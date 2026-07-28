@@ -33,21 +33,21 @@ struct InstanceData
 class FallingSandSimulation : public Simulation2D
 {
 private:
-  int gridWidth;
-  int gridHeight;
+  unsigned int gridWidth;
+  unsigned int gridHeight;
   float cellSize;
 
-  int nextGridWidth;
-  int nextGridHeight;
+  unsigned int nextGridWidth;
+  unsigned int nextGridHeight;
   float nextCellSize;
   bool showGridLines = true;
 
   std::vector<Cell> grid;
   float totalTime = 0.0f;
 
-  unsigned int quadVAO = 0, quadVBO = 0, instanceVBO = 0, fallingSandShaderProgram = 0;
-
-  unsigned int lineVAO = 0, lineVBO = 0, basicShaderProgram = 0;
+  unsigned int basicShaderProgram = 0, fallingSandShaderProgram = 0;
+  unsigned int quadVAO = 0, quadVBO = 0, instanceVBO = 0;
+  unsigned int lineVAO = 0, lineVBO = 0;
 
   ParticleType currentBrushType = ParticleType::SAND;
   int brushSize = 1;

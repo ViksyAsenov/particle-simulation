@@ -20,6 +20,7 @@ set(SOURCES
     libs/imgui/imgui.cpp
     src/core/simulation2D.cpp
     src/simulations/fallingSandSimulation.cpp
+    src/simulations/slimeMoldSimulation.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

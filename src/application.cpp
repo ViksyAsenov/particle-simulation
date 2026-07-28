@@ -2,6 +2,7 @@
 #include "application.h"
 #include "simulations/clothSimulation.h"
 #include "simulations/fallingSandSimulation.h"
+#include "simulations/slimeMoldSimulation.h"
 #include "input/mouseListener.h"
 
 Application::Application()
@@ -80,7 +81,7 @@ bool Application::init()
   ImGui::StyleColorsDark();
 
   ImGui_ImplGlfw_InitForOpenGL(window, true);
-  ImGui_ImplOpenGL3_Init("#version 400");
+  ImGui_ImplOpenGL3_Init("#version 460 core");
   glClearColor(0.0f, 0.0f, 0.0f, 0.75f);
 
   return true;
@@ -192,6 +193,9 @@ void Application::switchSimulation(SimulationType newSimulation)
     break;
   case SimulationType::FALLING_SAND:
     activeSimulation = new FallingSandSimulation(40, 30, 15.0f, simulationWidth, screenHeight);
+    break;
+  case SimulationType::SLIME_MOLD:
+    activeSimulation = new SlimeMoldSimulation(350000, simulationWidth, screenHeight);
     break;
   }
 

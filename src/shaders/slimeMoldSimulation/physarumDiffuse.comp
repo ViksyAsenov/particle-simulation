@@ -1,0 +1,51 @@
+#version 460 core
+
+// We use Z for the species layer index
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+layout(r32f, binding = 0) uniform readonly image2DArray trailMapRead;
+layout(r32f, binding = 1) uniform writeonly image2DArray trailMapWrite;
+
+uniform float deltaTime;
+uniform float evaporationRate;
+uniform float diffusionRate;
+
+void main() {
+    ivec3 textureCoordinate = ivec3(gl_GlobalInvocationID.xyz);
+    ivec3 resolution = imageSize(trailMapRead);
+
+    // Bounds check for X, Y, and the Z layer
+    if (textureCoordinate.x < 0 || textureCoordinate.x >= resolution.x || 
+        textureCoordinate.y < 0 || textureCoordinate.y >= resolution.y || 
+        textureCoordinate.z < 0 || textureCoordinate.z >= resolution.z) {
+        return;
+    }
+
+    float sum = 0.0;
+    
+    // 3x3 blur kernel for diffusion on the current species layer
+    for (int offsetX = -1; offsetX <= 1; offsetX++) {
+        for (int offsetY = -1; offsetY <= 1; offsetY++) {
+            // Keep Z constant to only blur within the same species layer
+            ivec3 samplePos = textureCoordinate + ivec3(offsetX, offsetY, 0);
+            
+            // Map boundaries wrap-around for X and Y
+            samplePos.x = (samplePos.x + resolution.x) % resolution.x;
+            samplePos.y = (samplePos.y + resolution.y) % resolution.y;
+
+            sum += imageLoad(trailMapRead, samplePos).r;
+        }
+    }
+
+    float blurredResult = sum / 9.0;
+    float originalValue = imageLoad(trailMapRead, textureCoordinate).r;
+    
+    // Linearly interpolate between the original cell and the blurred surrounding
+    float diffusedValue = mix(originalValue, blurredResult, diffusionRate * deltaTime);
+    
+    // Subtract evaporation
+    float finalValue = max(0.0, diffusedValue - (evaporationRate * deltaTime));
+
+    // Store the updated concentration back into the layer
+    imageStore(trailMapWrite, textureCoordinate, vec4(finalValue, 0.0, 0.0, 0.0));
+}

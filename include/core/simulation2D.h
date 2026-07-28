@@ -14,8 +14,8 @@ class Simulation2D : public Simulation, public MouseListener
 {
 protected:
   glm::mat4 projectionMatrix{1.0f};
-  int screenWidth;
-  int screenHeight;
+  unsigned int screenWidth;
+  unsigned int screenHeight;
 
   glm::vec2 cameraPosition;
   float cameraZoom = 1.0f;
@@ -27,7 +27,7 @@ protected:
   bool isLeftMouseDown = false;
   bool isRightMouseDown = false;
   bool isMiddleMouseDown = false;
-  float mouseScrollY = 0.0f;
+  float mouseScrollDeltaY = 0.0f;
 
 private:
   glm::vec2 lastScreenMousePosition;

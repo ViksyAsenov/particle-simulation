@@ -4,6 +4,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/constants.hpp>
 #include "imgui/imgui.h"
+#include <algorithm>
 
 Particle::Particle(float x, float y) : currentPosition(x, y), previousPosition(x, y)
 {
@@ -157,6 +158,13 @@ void ClothSimulation::init()
 
 void ClothSimulation::update(float deltaTime)
 {
+  if (mouseScrollDeltaY != 0.0f)
+  {
+    float radiusChange = mouseScrollDeltaY * 5.0f;
+    mouseTearRadius = std::clamp(mouseTearRadius + radiusChange, 5.0f, 100.0f);
+    mouseScrollDeltaY = 0.0f;
+  }
+
   if (isLeftMouseDown)
   {
     if (!draggedPoint)
@@ -210,20 +218,6 @@ void ClothSimulation::update(float deltaTime)
     }
   }
 
-  mouseTearRadius = 20.0f + (mouseScrollY * 5.0f);
-
-  if (mouseTearRadius < 2.0f)
-  {
-    mouseTearRadius = 2.0f;
-  }
-
-  if (mouseTearRadius > 100.0f)
-  {
-    mouseTearRadius = 100.0f;
-  }
-
-  mouseScrollY = (mouseTearRadius - 20.0f) / 5.0f;
-
   glm::vec2 appliedForces(windForceX, gravityY);
   appliedForces *= 100.0f;
 
@@ -268,8 +262,8 @@ void ClothSimulation::render()
   for (int i = 0; i < segments; i++)
   {
     float theta = 2.0f * glm::pi<float>() * static_cast<float>(i) / static_cast<float>(segments);
-    glm::vec2 circlePos = worldMousePosition + glm::vec2(mouseTearRadius * cos(theta), mouseTearRadius * sin(theta));
-    vertices.push_back({circlePos, red});
+    glm::vec2 circlePosition = worldMousePosition + glm::vec2(mouseTearRadius * cos(theta), mouseTearRadius * sin(theta));
+    vertices.push_back({circlePosition, red});
   }
 
   if (vertices.empty())

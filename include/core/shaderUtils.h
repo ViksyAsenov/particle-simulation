@@ -12,4 +12,6 @@ public:
   static unsigned int makeModule(const std::string &filepath, unsigned int moduleType);
 
   static unsigned int makeShader(const std::string &vertexFilepath, const std::string &fragmentFilepath);
+
+  static unsigned int makeComputeShader(const std::string &computeFilepath);
 };

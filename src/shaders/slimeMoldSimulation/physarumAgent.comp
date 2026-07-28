@@ -1,0 +1,118 @@
+#version 460 core
+
+layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+
+struct Agent {
+    vec2 position;
+    float angle;
+    uint speciesIndex;
+};
+
+struct SpeciesSettings {
+    float moveSpeed;
+    float turnSpeed;
+    float sensorAngle;
+    float sensorDistance;
+    uint sensorSize;
+    float depositAmount;
+    vec2 padding;
+    vec4 color;
+};
+
+layout(std430, binding = 0) buffer AgentBuffer {
+    Agent agents[];
+};
+
+layout(std430, binding = 1) buffer SpeciesBuffer {
+    SpeciesSettings species[];
+};
+
+layout(r32f, binding = 0) uniform image2DArray trailMap;
+
+uniform float deltaTime;
+uniform ivec2 resolution;
+
+// hash function from H. Schechter & R. Bridson
+uint hash(uint state) {
+    state ^= 2747636419u;
+    state *= 2654435769u;
+    state ^= state >> 16;
+    state *= 2654435769u;
+    state ^= state >> 16;
+    state *= 2654435769u;
+
+    return state;
+}
+
+float random(inout uint state) {
+    state = hash(state);
+
+    return float(state) / 4294967295.0; // 2^32-1
+}
+
+float sense(Agent agent, SpeciesSettings settings, float sensorAngleOffset) {
+    float sensorAngleTotal = agent.angle + sensorAngleOffset;
+    vec2 sensorDirection = vec2(cos(sensorAngleTotal), sin(sensorAngleTotal));
+    ivec2 sensorPosition = ivec2(agent.position + sensorDirection * settings.sensorDistance);
+
+    float sum = 0.0;
+    int sensorSize = int(settings.sensorSize);
+    for (int offsetX = -sensorSize; offsetX <= sensorSize; offsetX++) {
+        for (int offsetY = -sensorSize; offsetY <= sensorSize; offsetY++) {
+            ivec2 pos = sensorPosition + ivec2(offsetX, offsetY);
+            pos.x = (pos.x + resolution.x) % resolution.x;
+            pos.y = (pos.y + resolution.y) % resolution.y;
+            
+            sum += imageLoad(trailMap, ivec3(pos, int(agent.speciesIndex))).r; 
+        }
+    }
+
+    return sum;
+}
+
+void main() {
+    uint id = gl_GlobalInvocationID.x;
+
+    if (id >= agents.length()) {
+        return;
+    }
+
+    Agent agent = agents[id];
+    SpeciesSettings settings = species[agent.speciesIndex];
+
+    uint randomState = uint(agent.position.y * resolution.x + agent.position.x) + hash(id);
+
+    float weightForward = sense(agent, settings, 0.0);
+    float weightLeft = sense(agent, settings, settings.sensorAngle);
+    float weightRight = sense(agent, settings, -settings.sensorAngle);
+
+    float randomSteerStrength = random(randomState);
+
+    if (weightForward > weightLeft && weightForward > weightRight) {
+        // Continue forward
+    } else if (weightForward < weightLeft && weightForward < weightRight) {
+        agent.angle += (randomSteerStrength - 0.5) * 2.0 * settings.turnSpeed * deltaTime;
+    } else if (weightRight > weightLeft) {
+        agent.angle -= randomSteerStrength * settings.turnSpeed * deltaTime;
+    } else if (weightLeft > weightRight) {
+        agent.angle += randomSteerStrength * settings.turnSpeed * deltaTime;
+    }
+
+    vec2 direction = vec2(cos(agent.angle), sin(agent.angle));
+    agent.position += direction * settings.moveSpeed * deltaTime;
+
+    // Wrap around the screen
+    if (agent.position.x < 0.0) agent.position.x += float(resolution.x);
+    if (agent.position.x >= float(resolution.x)) agent.position.x -= float(resolution.x);
+    if (agent.position.y < 0.0) agent.position.y += float(resolution.y);
+    if (agent.position.y >= float(resolution.y)) agent.position.y -= float(resolution.y);
+
+    agents[id] = agent;
+
+    // Write to the specific layer in the 2D array
+    ivec3 writePosition = ivec3(agent.position, int(agent.speciesIndex));
+    float currentTrail = imageLoad(trailMap, writePosition).r;
+    float deposit = settings.depositAmount * deltaTime;
+    
+    imageStore(trailMap, writePosition, vec4(min(currentTrail + deposit, 1.0), 0.0, 0.0, 0.0));
+}
