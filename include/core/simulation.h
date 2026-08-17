@@ -13,6 +13,8 @@ public:
 
   virtual void renderUI() = 0;
 
+  virtual bool handlesOwnClear() { return false; }
+
   virtual void onResize(int newScreenWidth, int newScreenHeight) {};
   virtual void resetCamera() {};
 };

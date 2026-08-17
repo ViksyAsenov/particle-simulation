@@ -20,13 +20,6 @@ FallingSandSimulation::FallingSandSimulation(int gridWidth, int gridHeight, floa
   this->nextCellSize = cellSize;
 
   rebuildGrid(gridWidth, gridHeight, cellSize);
-
-  float gridPhysicalWidth = (gridWidth - 1) * cellSize;
-  float gridPhysicalHeight = (gridHeight - 1) * cellSize;
-
-  glm::vec2 gridCenter(gridPhysicalWidth / 2.0f, gridPhysicalHeight / 2.0f);
-
-  setCameraFocus(gridCenter, 1.0f);
 }
 
 FallingSandSimulation::~FallingSandSimulation()
@@ -60,19 +53,17 @@ void FallingSandSimulation::init()
 
   glBindVertexArray(quadVAO);
 
-  // Bind base quad vertices (Location 0)
   glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0);
 
-  // Bind instance data
   glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
 
   // Location 1: Instance Offset
   glEnableVertexAttribArray(1);
   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void *)offsetof(InstanceData, position));
-  glVertexAttribDivisor(1, 1); // Tell OpenGL this changes per-instance, not per-vertex
+  glVertexAttribDivisor(1, 1); // changes per-instance, not per-vertex
 
   // Location 2: Instance Color
   glEnableVertexAttribArray(2);
@@ -109,6 +100,22 @@ void FallingSandSimulation::rebuildGrid(int newWidth, int newHeight, float newCe
 
   grid.clear();
   grid.resize(gridWidth * gridHeight, Cell());
+
+  float gridPhysicalWidth = (gridWidth - 1) * cellSize;
+  float gridPhysicalHeight = (gridHeight - 1) * cellSize;
+
+  glm::vec2 gridCenter(gridPhysicalWidth / 2.0f, gridPhysicalHeight / 2.0f);
+
+  float targetScreenFraction = 0.85f;
+
+  float scaleX = screenWidth / gridPhysicalWidth;
+  float scaleY = screenHeight / gridPhysicalHeight;
+
+  float baseZoom = std::min(scaleX, scaleY);
+
+  float finalZoom = baseZoom * targetScreenFraction;
+
+  setCameraFocus(gridCenter, finalZoom);
 }
 
 bool FallingSandSimulation::isInBounds(int x, int y) const

@@ -21,6 +21,7 @@ set(SOURCES
     src/core/simulation2D.cpp
     src/simulations/fallingSandSimulation.cpp
     src/simulations/slimeMoldSimulation.cpp
+    src/simulations/nBodyGravitySimulation.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

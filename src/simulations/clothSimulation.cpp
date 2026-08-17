@@ -6,13 +6,13 @@
 #include "imgui/imgui.h"
 #include <algorithm>
 
-Particle::Particle(float x, float y) : currentPosition(x, y), previousPosition(x, y)
+ClothParticle::ClothParticle(float x, float y) : currentPosition(x, y), previousPosition(x, y)
 {
   this->isPinned = false;
   this->wasPinned = false;
 }
 
-void Particle::update(float deltaTime, float drag, const glm::vec2 &gravity)
+void ClothParticle::update(float deltaTime, float drag, const glm::vec2 &gravity)
 {
   if (isPinned)
   {
@@ -33,15 +33,15 @@ Constraint::Constraint(unsigned int p0Index, unsigned int p1Index, float length)
   this->isActive = true;
 }
 
-void Constraint::update(std::vector<Particle> &particles, float elasticity)
+void Constraint::update(std::vector<ClothParticle> &particles, float elasticity)
 {
   if (!isActive)
   {
     return;
   }
 
-  Particle &p0 = particles[p0Index];
-  Particle &p1 = particles[p1Index];
+  ClothParticle &p0 = particles[p0Index];
+  ClothParticle &p1 = particles[p1Index];
 
   glm::vec2 positionDifference = p0.currentPosition - p1.currentPosition;
   float distance = glm::length(positionDifference);
@@ -109,6 +109,22 @@ void ClothSimulation::rebuildCloth(int width, int height, float spacing)
       }
     }
   }
+
+  float clothPhysicalWidth = (width - 1) * spacing;
+  float clothPhysicalHeight = (height - 1) * spacing;
+
+  glm::vec2 clothCenter(clothPhysicalWidth / 2.0f, clothPhysicalHeight / 2.0f);
+
+  float targetScreenFraction = 0.85f;
+
+  float scaleX = screenWidth / clothPhysicalWidth;
+  float scaleY = screenHeight / clothPhysicalHeight;
+
+  float baseZoom = std::min(scaleX, scaleY);
+
+  float finalZoom = baseZoom * targetScreenFraction;
+
+  setCameraFocus(clothCenter, finalZoom);
 }
 
 ClothSimulation::ClothSimulation(int width, int height, float spacing, int screenWidth, int screenHeight) : Simulation2D(screenWidth, screenHeight)
@@ -118,13 +134,6 @@ ClothSimulation::ClothSimulation(int width, int height, float spacing, int scree
   this->spacing = spacing;
 
   rebuildCloth(width, height, spacing);
-
-  float clothPhysicalWidth = (width - 1) * spacing;
-  float clothPhysicalHeight = (height - 1) * spacing;
-
-  glm::vec2 clothCenter(clothPhysicalWidth / 2.0f, clothPhysicalHeight / 2.0f);
-
-  setCameraFocus(clothCenter, 1.0f);
 }
 
 ClothSimulation::~ClothSimulation()

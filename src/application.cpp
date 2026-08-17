@@ -3,6 +3,7 @@
 #include "simulations/clothSimulation.h"
 #include "simulations/fallingSandSimulation.h"
 #include "simulations/slimeMoldSimulation.h"
+#include "simulations/nBodyGravitySimulation.h"
 #include "input/mouseListener.h"
 
 Application::Application()
@@ -162,7 +163,10 @@ void Application::run()
       }
     }
 
-    glClear(GL_COLOR_BUFFER_BIT);
+    if (activeSimulation && !activeSimulation->handlesOwnClear())
+    {
+      glClear(GL_COLOR_BUFFER_BIT);
+    }
 
     if (activeSimulation)
     {
@@ -196,6 +200,9 @@ void Application::switchSimulation(SimulationType newSimulation)
     break;
   case SimulationType::SLIME_MOLD:
     activeSimulation = new SlimeMoldSimulation(350000, simulationWidth, screenHeight);
+    break;
+  case SimulationType::N_BODY_GRAVITY:
+    activeSimulation = new NBodyGravitySimulation(simulationWidth, screenHeight);
     break;
   }
 

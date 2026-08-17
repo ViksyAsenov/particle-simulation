@@ -8,7 +8,8 @@ enum class SimulationType
   NONE,
   CLOTH,
   FALLING_SAND,
-  SLIME_MOLD
+  SLIME_MOLD,
+  N_BODY_GRAVITY
 };
 
 struct SimulationTab
@@ -21,6 +22,7 @@ const SimulationTab tabs[] = {
     {"Cloth", SimulationType::CLOTH},
     {"Falling Sand", SimulationType::FALLING_SAND},
     {"Slime Mold", SimulationType::SLIME_MOLD},
+    {"N Body Gravity", SimulationType::N_BODY_GRAVITY},
 };
 
 class Application

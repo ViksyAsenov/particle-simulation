@@ -19,6 +19,7 @@ protected:
 
   glm::vec2 cameraPosition;
   float cameraZoom = 1.0f;
+  float zoomSpeed = 0.1f;
 
   glm::vec2 defaultCameraPosition = glm::vec2(0.0f, 0.0f);
   float defaultCameraZoom = 1.0f;

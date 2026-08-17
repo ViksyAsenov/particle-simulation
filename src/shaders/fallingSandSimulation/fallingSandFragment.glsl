@@ -10,9 +10,9 @@ in vec3 fragmentColor;
 in vec2 fragmentUV;
 flat in uint fragmentType;
 
-out vec4 screenColor;
-
 uniform float time;
+
+out vec4 screenColor;
 
 void main() 
 {

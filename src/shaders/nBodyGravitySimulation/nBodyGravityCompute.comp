@@ -1,0 +1,75 @@
+#version 460 core
+
+layout(local_size_x = 256) in;
+
+struct Particle {
+    vec2 position;
+    vec2 velocity;
+    vec4 color;
+    vec2 mass_radius;
+    vec2 padding;
+};
+
+// SSBO bound to layout 0 (Read)
+layout(std430, binding = 0) readonly buffer ParticlesInBuffer {
+    Particle particlesIn[];
+};
+
+// SSBO bound to layout 1 (Write)
+layout(std430, binding = 1) writeonly buffer ParticlesOutBuffer {
+    Particle particlesOut[];
+};
+
+uniform float deltaTime;
+uniform float gravity;
+uniform float softening;
+uniform uint activeParticles;
+uniform float damping;
+
+void main() {
+    uint id = gl_GlobalInvocationID.x;
+    
+    if (id >= activeParticles) {
+        return;
+    }
+
+    vec2 position = particlesIn[id].position;
+    vec2 force = vec2(0.0);
+
+    for (uint i = 0; i < activeParticles; i++) {
+        if (i == id) {
+            continue;
+        }
+        
+        vec2 otherPosition = particlesIn[i].position;
+        float otherMass = particlesIn[i].mass_radius.x;
+        
+        vec2 direction = otherPosition - position;
+        
+        // distanceSquared includes the softening factor to prevent infinite forces at zero distance
+        float distanceSquared = dot(direction, direction) + (softening * softening);
+        
+        // Calculate 1 / (distance^3) efficiently
+        float inverseDistance = inversesqrt(distanceSquared);
+        float inverseDistanceCube = inverseDistance * inverseDistance * inverseDistance;
+        
+        // F = G * M / r^3 * r
+        force += direction * (gravity * otherMass * inverseDistanceCube);
+    }
+
+    vec2 acceleration = force;
+
+    vec2 oldVelocity = particlesIn[id].velocity;
+
+    // Symplectic Euler: update velocity first using old acceleration
+    vec2 newVelocity = (oldVelocity + (acceleration * deltaTime)) * damping;
+
+    vec2 newPosition = position + (newVelocity * deltaTime);
+
+    particlesOut[id].velocity = newVelocity;
+    particlesOut[id].position = newPosition;
+    
+    particlesOut[id].color = particlesIn[id].color;
+    particlesOut[id].mass_radius = particlesIn[id].mass_radius; 
+    particlesOut[id].padding = particlesIn[id].padding;
+}

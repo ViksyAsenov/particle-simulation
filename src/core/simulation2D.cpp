@@ -92,16 +92,18 @@ void Simulation2D::onMouseScroll(float xOffset, float yOffset)
 
 void Simulation2D::onCameraZoom(float yOffset)
 {
-  cameraZoom += yOffset * 0.1f;
+  float zoomFactor = 1.0f + (yOffset * zoomSpeed);
 
-  if (cameraZoom < 0.1f)
+  if (zoomFactor <= 0.0f)
   {
-    cameraZoom = 0.1f;
+    zoomFactor = 0.1f;
   }
 
-  if (cameraZoom > 10.0f)
+  cameraZoom *= zoomFactor;
+
+  if (cameraZoom < 0.001f)
   {
-    cameraZoom = 10.0f;
+    cameraZoom = 0.001f;
   }
 }
 
