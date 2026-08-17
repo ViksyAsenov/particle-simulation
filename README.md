@@ -8,7 +8,10 @@ A small OpenGL particle and cellular simulation project featuring four interacti
 
 A verlet-based cloth simulation with structural constraints, wind, gravity, drag, and interactive tearing/dragging. You can pull points and tear the cloth by holding the right mouse button.
 
-<video src="videos/cloth.mp4" controls muted playsinline width="100%"></video>
+<video controls>
+  <source src="videos/cloth.mp4" type="video/mp4" width="100%">
+  Your browser does not support the video tag.
+</video>
 
 ### 2. Falling Sand
 
