@@ -8,28 +8,25 @@ A small OpenGL particle and cellular simulation project featuring four interacti
 
 A verlet-based cloth simulation with structural constraints, wind, gravity, drag, and interactive tearing/dragging. You can pull points and tear the cloth by holding the right mouse button.
 
-<video controls>
-  <source src="videos/cloth.mp4" type="video/mp4" width="100%">
-  Your browser does not support the video tag.
-</video>
+https://github.com/user-attachments/assets/748f309a-250d-49b2-a87a-57673dde28f4
 
 ### 2. Falling Sand
 
 A grid-based particle sandbox with sand, water, stone, wood, and fire. The simulation supports brush painting, grid resizing, and particle interactions.
 
-<video src="videos/fallingSand.mp4" controls muted playsinline width="100%"></video>
+https://github.com/user-attachments/assets/d1bb3144-0178-428c-8a4f-eb94edbb2355
 
 ### 3. Slime Mold
 
 A compute-shader based Physarum-inspired simulation where agents move through an evolving trail map, deposit matter, and react to neighboring species behaviors. This simulation includes multiple species with distinct movement and sensing rules.
 
-<video src="videos/slimeMold.mp4" controls muted playsinline width="100%"></video>
+https://github.com/user-attachments/assets/609ee303-a5da-4906-93a3-b5697c2aa240
 
 ### 4. N-Body Gravity
 
 A GPU-accelerated gravity simulation with orbital motion and galaxy generation. The app includes presets for two-body systems, single galaxies, and galaxy collisions, along with interactive planet placement and trail effects.
 
-<video src="videos/nBodyGravity.mp4" controls muted playsinline width="100%"></video>
+https://github.com/user-attachments/assets/750575fe-a4b4-44ad-870a-0e05f8a22923
 
 ## Features
 
