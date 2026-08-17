@@ -99,6 +99,8 @@ void Application::run()
   {
     glfwPollEvents();
 
+    glViewport(0, 0, screenWidth, screenHeight);
+
     double currentFrameTime = glfwGetTime();
     float deltaTime = static_cast<float>(currentFrameTime - lastFrameTime);
     lastFrameTime = currentFrameTime;
@@ -167,6 +169,9 @@ void Application::run()
     {
       glClear(GL_COLOR_BUFFER_BIT);
     }
+
+    int simulationWidth = screenWidth - static_cast<int>(currentUiWidth);
+    glViewport(static_cast<int>(currentUiWidth), 0, simulationWidth, screenHeight);
 
     if (activeSimulation)
     {
@@ -294,20 +299,16 @@ void Application::scrollCallback(GLFWwindow *window, double xOffset, double yOff
 
 void Application::framebufferSizeCallback(GLFWwindow *window, int width, int height)
 {
-
   Application *app = static_cast<Application *>(glfwGetWindowUserPointer(window));
-
   if (!app)
   {
     return;
   }
 
-  int simulationWidth = width - static_cast<int>(app->currentUiWidth);
-
-  glViewport(static_cast<int>(app->currentUiWidth), 0, simulationWidth, height);
-
   app->screenWidth = width;
   app->screenHeight = height;
+
+  int simulationWidth = width - static_cast<int>(app->currentUiWidth);
 
   if (app->activeSimulation)
   {

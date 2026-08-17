@@ -450,7 +450,7 @@ void NBodyGravitySimulation::renderUI()
     case InteractionMode::SPAWN_GALAXY:
     {
       ImGui::SliderFloat("Radius", &spawnGalaxyRadius, 1.0f, 10000.0f);
-      ImGui::SliderInt("Stars Count", &spawnGalaxyStarsCount, 100, 10000);
+      ImGui::SliderInt("Stars Count", &spawnGalaxyStarsCount, 100, 75000);
       ImGui::SliderFloat("Central Mass", &spawnGalaxyCentralMass, 1000.0f, 20000.0f);
       ImGui::SliderFloat("Central Radius", &spawnGalaxyCentralRadius, 1.0f, 100.0f);
 
